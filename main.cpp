@@ -49,7 +49,7 @@ vector<float> strassen(vector<float> A, vector<float> B, uint64_t l){
     return resultado;
 }
 
-vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l, int opcion){
+vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l){
 
     // Si el largo de la matriz es mayor a 2, se debe dividir y conquistar.
     // Como las matrices a evaluar son cuadradas, largo = ancho.
@@ -104,14 +104,14 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l, int 
         vector<float> c1_1(tam_sub,0), c1_2(tam_sub,0), c2_1(tam_sub,0), c2_2(tam_sub,0);
         vector<float> c3_1(tam_sub,0), c3_2(tam_sub,0), c4_1(tam_sub,0), c4_2(tam_sub,0);
 
-        c1_1 = divideConquer(a1,b1,l/2,opcion);
-        c1_2 = divideConquer(a2,b3,l/2,opcion);
-        c2_1 = divideConquer(a1,b2,l/2,opcion);
-        c2_2 = divideConquer(a2,b4,l/2,opcion);
-        c3_1 = divideConquer(a3,b1,l/2,opcion);
-        c3_2 = divideConquer(a4,b3,l/2,opcion);
-        c4_1 = divideConquer(a3,b2,l/2,opcion);
-        c4_2 = divideConquer(a4,b4,l/2,opcion);
+        c1_1 = divideConquer(a1,b1,l/2);
+        c1_2 = divideConquer(a2,b3,l/2);
+        c2_1 = divideConquer(a1,b2,l/2);
+        c2_2 = divideConquer(a2,b4,l/2);
+        c3_1 = divideConquer(a3,b1,l/2);
+        c3_2 = divideConquer(a4,b3,l/2);
+        c4_1 = divideConquer(a3,b2,l/2);
+        c4_2 = divideConquer(a4,b4,l/2);
 
         for(int i = 0; i < l/2; i++){
             for(int j = 0; j < l/2; j++){
@@ -155,22 +155,14 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l, int 
         // Resultado de multiplicación
         vector<float> res;
 
-        // Opción 0 es multiplicación tradicional.
-        if (opcion == 0){
-            res = matrixMult(A,B,l);
-        }
-
-        // Opción 1 es Strassen.
-        else if (opcion == 1){
-            res = strassen(A,B,l);
-        }
+        res = matrixMult(A,B,l);
 
         // Acá se asignan los valores del resultado a la matriz C.
         return res;
 
         // Acá no tengo acceso a la "matriz superior"
         // (La que, por ejemplo, sería de 4x4 si mi matriz a trabajar acá es de 2x2)
-
+        
         // Eso se procesa en en el if.
 
     }
@@ -180,27 +172,18 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l, int 
 int main (int argc, char *argv[]) {
 
     /*
-    if(argc != 3){
-        cout<<" uso: " << argv[0] <<" dimension opcion" << endl;
-        cout<<" opcion 0 (normal) o 1 (strassen)" << endl;
+    if(argc != 2){
+        cout<<" uso: " << argv[0] <<" dimension" << endl;
         return 1;
     }
 
     int dimension = atoi(argv[1]);
     const uint64_t l = 1 << dimension;
-
-    int opcion = atoi(argv[2]);
-
-    if (opcion != 0 && opcion != 1){
-        cout <<" Por favor usar 0 (normal) o 1 (strassen)" << endl;
-        return 1;
-    }
     */
 
     // DEBUG
     int dimension = 3;
     const uint64_t l = 1 << dimension;
-    int opcion = 0;
 
     TIMERSTART(init)
     vector<float> A (l*l, 0);
@@ -239,7 +222,7 @@ int main (int argc, char *argv[]) {
 
     TIMERSTART(divideconquer)
 
-    C = divideConquer(A,B,l,opcion);
+    C = divideConquer(A,B,l);
 
     TIMERSTOP(divideconquer)
 
