@@ -183,7 +183,7 @@ int main (int argc, char *argv[]) {
     */
 
     // DEBUG
-    int dimension = 2000;
+    int dimension = 4;
     const uint64_t l = 1 << dimension;
 
     TIMERSTART(init)
