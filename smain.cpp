@@ -7,42 +7,22 @@
 using namespace std;
 
 vector<float> naive(vector<float>& A, vector<float>& B, uint64_t l) {
-    vector<float> prod(l*l, 0);
+    vector<float> res(l*l, 0);
 
     int i, j;
 
     for (i = 0; i < l; i++) {
         for (j = 0; j < l; j++) {
-            prod[(i*l)+j] = 0;
+            res[(i*l)+j] = 0;
             for (int k = 0; k < l; k++) {
-                prod[(i*l)+j] += A[(i*l)+k] * B[(k*l)+j];
+                res[(i*l)+j] += A[(i*l)+k] * B[(k*l)+j];
             }
         }
     }
 
-    return prod;
+    return res;
 }
 
-
-vector<float> addMatrix (vector<float>& A, vector<float>& B) {
-    vector<float> resultado(A.size(),0);
-
-    for (int i = 0; i < A.size(); ++i) {
-         resultado[i] = A[i] + B[i];       
-    }
-
-    return resultado;
-}
-
-vector<float> subMatrix (vector<float>& A, vector<float>& B) {
-    vector<float> resultado(A.size(),0);
-
-    for (int i = 0; i < A.size(); ++i) {
-         resultado[i] = A[i] - B[i];       
-    }
-
-    return resultado;
-}
 
 vector<float> strassenRecursive(vector<float>& A, vector<float>& B, uint64_t l){
 
@@ -95,43 +75,59 @@ vector<float> strassenRecursive(vector<float>& A, vector<float>& B, uint64_t l){
             }
         }
 
+        // Sumas
 
-
-        for(int i=0; i<a1.size(); i++){
-            cout << a1[i] << " ";
+        vector<float> add_a1a4(tam_sub, 0);
+        for (int i = 0; i < add_a1a4.size(); ++i) {
+            add_a1a4[i] = a1[i] + a4[i];
         }
 
-        cout  << endl << "---" << endl;
-
-                for(int i=0; i<a2.size(); i++){
-            cout << a2[i] << " ";
+        vector<float> add_b1b4(tam_sub, 0);
+        for (int i = 0; i < add_b1b4.size(); ++i) {
+            add_b1b4[i] = b1[i] + b4[i];
         }
 
-        cout  << endl << "---" << endl;
-
-                for(int i=0; i<a3.size(); i++){
-            cout << a3[i] << " ";
+        vector<float> add_a3a4(tam_sub, 0);
+        for (int i = 0; i < add_a3a4.size(); ++i) {
+            add_a3a4[i] = a3[i] + a4[i];
         }
 
-        cout  << endl << "---" << endl;
-
-                for(int i=0; i<a4.size(); i++){
-            cout << a4[i] << " ";
+        vector<float> add_a1a2(tam_sub, 0);
+        for (int i = 0; i < add_a1a2.size(); ++i) {
+            add_a1a2[i] = a1[i] + a2[i];
         }
 
-        cout  << endl << "---" << endl;
+        vector<float> add_b1b2(tam_sub, 0);
+        for (int i = 0; i < add_b1b2.size(); ++i) {
+            add_b1b2[i] = b1[i] + b2[i];
+        }
 
-        vector<float> add_a1a4 = addMatrix(a1, a4);
-        vector<float> add_b1b4 = addMatrix(b1, b4);
-        vector<float> add_a3a4 = addMatrix(a3, a4);
-        vector<float> add_a1a2 = addMatrix(a1, a2);
-        vector<float> add_b1b2 = addMatrix(b1, b2);
-        vector<float> add_b3b4 = addMatrix(b3, b4);
+        vector<float> add_b3b4(tam_sub, 0);
+        for (int i = 0; i < add_b3b4.size(); ++i) {
+            add_b3b4[i] = b3[i] + b4[i];
+        }
+
+        // Restas
         
-        vector<float> sub_b2b4 = subMatrix(b2, b4);
-        vector<float> sub_b3b1 = subMatrix(b3, b1);
-        vector<float> sub_a3a1 = subMatrix(a3, a1);
-        vector<float> sub_a2a4 = subMatrix(a2, a4);
+        vector<float> sub_b2b4(tam_sub, 0);
+        for (int i = 0; i < sub_b2b4.size(); ++i) {
+            sub_b2b4[i] = b2[i] - b4[i];
+        }
+
+        vector<float> sub_b3b1(tam_sub, 0);
+        for (int i = 0; i < sub_b3b1.size(); ++i) {
+            sub_b3b1[i] = b3[i] - b1[i];
+        }
+
+        vector<float> sub_a3a1(tam_sub, 0);
+        for (int i = 0; i < sub_a3a1.size(); ++i) {
+            sub_a3a1[i] = a3[i] - a1[i];
+        }
+
+        vector<float> sub_a2a4(tam_sub, 0);
+        for (int i = 0; i < sub_a2a4.size(); ++i) {
+            sub_a2a4[i] = a2[i] - a4[i];
+        }
 
         vector<float> m1 = strassenRecursive(add_a1a4, add_b1b4, l/2);
         vector<float> m2 = strassenRecursive(add_a3a4, b1, l/2);
@@ -187,7 +183,7 @@ int main (int argc, char *argv[]) {
     */
 
     // DEBUG
-    int dimension = 4;
+    int dimension = 2000;
     const uint64_t l = 1 << dimension;
 
     TIMERSTART(init)
@@ -196,6 +192,7 @@ int main (int argc, char *argv[]) {
     vector<float> C (l*l, 0);
     TIMERSTOP(init)
 
+    /**
     for(int i=0; i<l; i++){
        for(int j=0; j<l; j++){
             A[i*l+j] = rand()%5+1;
@@ -224,13 +221,15 @@ int main (int argc, char *argv[]) {
        }
        cout << endl;
     }
+    **/
 
-    TIMERSTART(divideconquer)
+    TIMERSTART(strassenRecursive)
     
     C = strassenRecursive(A,B,l);
 
-    TIMERSTOP(divideconquer)
+    TIMERSTOP(strassenRecursive)
 
+    /**
     cout << "C: " << endl;
 
     for(int i=0; i<l; i++){
@@ -239,5 +238,6 @@ int main (int argc, char *argv[]) {
        }
        cout << endl;
     }
+    **/
 
 }
