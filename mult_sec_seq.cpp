@@ -11,6 +11,7 @@ int main (int argc, char *argv[]) {
 	    cout<<" uso: "<<argv[0]<<" em en el\n";
 	    return 1;
     } 
+    
     int em = atoi(argv[1]); 
     int en = atoi(argv[2]); 
     int el = atoi(argv[3]); 
@@ -38,12 +39,14 @@ int main (int argc, char *argv[]) {
        }
     }
 
+    /*
     for(int i=0; i<m; i++){
        for(int j=0; j<l; j++){
             cout << A[i*l+j] << " ";
        }
        cout << endl;
     }
+    */
 
 
     for(int i=0; i<l; i++){

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
+#include <omp.h>
 #include "./metrictime2.hpp"
 
 using namespace std;
