@@ -44,6 +44,7 @@ int main (int argc, char *argv[]) {
        }
     }
 
+    /*
     cout << "A: " << endl;
     for(int i=0; i<l; i++){
        for(int j=0; j<l; j++){
@@ -60,6 +61,7 @@ int main (int argc, char *argv[]) {
        }
        cout << endl;
     }
+    */
 
     // Se usará Loop Interchange.
 
@@ -78,10 +80,12 @@ int main (int argc, char *argv[]) {
 
     TIMERSTOP(cachefriendly)
 
+    /*
     for(int i=0; i<l; i++){
        for(int j=0; j<l; j++){
         cout << C[i*l+j] << " ";
        }
        cout << endl;
     }
+    */
 }
