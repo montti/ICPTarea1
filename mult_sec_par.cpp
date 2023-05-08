@@ -44,7 +44,24 @@ int main (int argc, char *argv[]) {
        }
     }
 
+    /*
+    cout << "A: " << endl;
+    for(int i=0; i<l; i++){
+       for(int j=0; j<l; j++){
+        cout << A[i*l+j] << " ";
+       }
+       cout << endl;
+    }
 
+    cout << "B: " << endl;
+
+    for(int i=0; i<l; i++){
+       for(int j=0; j<l; j++){
+        cout << B[i*l+j] << " ";
+       }
+       cout << endl;
+    }
+    */
 
     uint64_t i,j,k;
     float accum = 0;
@@ -60,4 +77,13 @@ int main (int argc, char *argv[]) {
     }
 
     TIMERSTOP(seqmult) 
+
+    /*
+    for(int i=0; i<l; i++){
+       for(int j=0; j<l; j++){
+        cout << C[i*l+j] << " ";
+       }
+       cout << endl;
+    }
+    */
 }
