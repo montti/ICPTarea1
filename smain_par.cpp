@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <vector>
 #include <cmath>
+#include <omp.h>
+#include <bits/stdc++.h>
 #include "./metrictime2.hpp"
 
 using namespace std;
@@ -11,6 +13,7 @@ vector<float> mult(vector<float>& A, vector<float>& B, uint64_t l) {
 
     int i, j;
 
+    #pragma omp parallel for collapse(2)
     for (i = 0; i < l; i++) {
         for (j = 0; j < l; j++) {
             res[(i*l)+j] = 0;
@@ -29,7 +32,7 @@ vector<float> strassenRecursive(vector<float>& A, vector<float>& B, uint64_t l){
     // Si el largo de la matriz es mayor a 2, se debe dividir y conquistar.
     // Como las matrices a evaluar son cuadradas, largo = ancho.
 
-    if (l <= 2) {
+    if (l <= 4) {
         //vector<float> aux(1, A[0] * B[0]);
         //return aux;
         return mult(A, B, l);
@@ -50,6 +53,7 @@ vector<float> strassenRecursive(vector<float>& A, vector<float>& B, uint64_t l){
 
         // Estos ciclos for deberían avanzar por todos los espacios
         // de las 4 sub-matrices.
+        #pragma omp parallel for collapse(2)
         for(int i = 0; i < l/2; i++){
             for(int j = 0; j < l/2; j++){
 
@@ -78,65 +82,63 @@ vector<float> strassenRecursive(vector<float>& A, vector<float>& B, uint64_t l){
         // Sumas
 
         vector<float> add_a1a4(tam_sub, 0);
-        for (int i = 0; i < add_a1a4.size(); ++i) {
-            add_a1a4[i] = a1[i] + a4[i];
-        }
-
         vector<float> add_b1b4(tam_sub, 0);
-        for (int i = 0; i < add_b1b4.size(); ++i) {
-            add_b1b4[i] = b1[i] + b4[i];
-        }
-
         vector<float> add_a3a4(tam_sub, 0);
-        for (int i = 0; i < add_a3a4.size(); ++i) {
-            add_a3a4[i] = a3[i] + a4[i];
-        }
-
         vector<float> add_a1a2(tam_sub, 0);
-        for (int i = 0; i < add_a1a2.size(); ++i) {
-            add_a1a2[i] = a1[i] + a2[i];
-        }
-
         vector<float> add_b1b2(tam_sub, 0);
-        for (int i = 0; i < add_b1b2.size(); ++i) {
-            add_b1b2[i] = b1[i] + b2[i];
-        }
-
         vector<float> add_b3b4(tam_sub, 0);
-        for (int i = 0; i < add_b3b4.size(); ++i) {
-            add_b3b4[i] = b3[i] + b4[i];
-        }
-
-        // Restas
-        
         vector<float> sub_b2b4(tam_sub, 0);
-        for (int i = 0; i < sub_b2b4.size(); ++i) {
-            sub_b2b4[i] = b2[i] - b4[i];
-        }
-
         vector<float> sub_b3b1(tam_sub, 0);
-        for (int i = 0; i < sub_b3b1.size(); ++i) {
-            sub_b3b1[i] = b3[i] - b1[i];
-        }
-
         vector<float> sub_a3a1(tam_sub, 0);
-        for (int i = 0; i < sub_a3a1.size(); ++i) {
-            sub_a3a1[i] = a3[i] - a1[i];
-        }
-
         vector<float> sub_a2a4(tam_sub, 0);
-        for (int i = 0; i < sub_a2a4.size(); ++i) {
+
+
+        #pragma omp parallel for
+        for (int i = 0; i < tam_sub; ++i) {
+            add_a1a4[i] = a1[i] + a4[i];
+            add_b1b4[i] = b1[i] + b4[i];
+            add_a3a4[i] = a3[i] + a4[i];
+            add_a1a2[i] = a1[i] + a2[i];
+            add_b1b2[i] = b1[i] + b2[i];
+            add_b3b4[i] = b3[i] + b4[i];
+            sub_b2b4[i] = b2[i] - b4[i];
+            sub_b3b1[i] = b3[i] - b1[i];
+            sub_a3a1[i] = a3[i] - a1[i];
             sub_a2a4[i] = a2[i] - a4[i];
         }
 
-        vector<float> m1 = strassenRecursive(add_a1a4, add_b1b4, l/2);
-        vector<float> m2 = strassenRecursive(add_a3a4, b1, l/2);
-        vector<float> m3 = strassenRecursive(a1, sub_b2b4, l/2);
-        vector<float> m4 = strassenRecursive(a4, sub_b3b1, l/2);
-        vector<float> m5 = strassenRecursive(add_a1a2, b4, l/2);
-        vector<float> m6 = strassenRecursive(sub_a3a1, add_b1b2, l/2);
-        vector<float> m7 = strassenRecursive(sub_a2a4, add_b3b4, l/2);
 
+        vector<float> m1;
+        #pragma omp task shared(m1)
+        {m1 = strassenRecursive(add_a1a4, add_b1b4, l/2);}
+
+        vector<float> m2;
+        #pragma omp task shared(m2)
+        {m2 = strassenRecursive(add_a3a4, b1, l/2);}
+
+        vector<float> m3;
+        #pragma omp task shared(m3)
+        {m3 = strassenRecursive(a1, sub_b2b4, l/2);}
+
+        vector<float> m4;
+        #pragma omp task shared(m4)
+        {m4 = strassenRecursive(a4, sub_b3b1, l/2);}
+
+        vector<float> m5;
+        #pragma omp task shared(m5)
+        {m5 = strassenRecursive(add_a1a2, b4, l/2);}
+
+        vector<float> m6;
+        #pragma omp task shared(m6)
+        {m6 = strassenRecursive(sub_a3a1, add_b1b2, l/2);}
+
+        vector<float> m7;
+        #pragma omp task shared(m7)
+        {m7 = strassenRecursive(sub_a2a4, add_b3b4, l/2);}
+
+        #pragma omp taskwait
+
+        #pragma omp parallel for 
         for (int i = 0; i < tam_sub; ++i) {
             c1[i] = m1[i] + m4[i] - m5[i] + m7[i];   
             c2[i] = m3[i] + m5[i];
@@ -144,8 +146,10 @@ vector<float> strassenRecursive(vector<float>& A, vector<float>& B, uint64_t l){
             c4[i] = m1[i] - m2[i] + m3[i] + m6[i];       
         }
 
+
         vector<float> C(l*l,0);
 
+        #pragma omp parallel for collapse(2)
         for(int i = 0; i < l/2; i++){
             for(int j = 0; j < l/2; j++){
 
@@ -154,7 +158,6 @@ vector<float> strassenRecursive(vector<float>& A, vector<float>& B, uint64_t l){
 
                 // Matriz superior derecha
                 C[(l/2)+(i*l)+j] = c2[i*(l/2)+j];
-
 
                 // Matriz inferior izquierda
                 C[(l/2*l)+(i*l)+j] = c3[i*(l/2)+j];
@@ -183,7 +186,7 @@ int main (int argc, char *argv[]) {
     */
 
     // DEBUG
-    int dimension = 4;
+    int dimension = 1000;
     const uint64_t l = 1 << dimension;
 
     TIMERSTART(init)
@@ -192,7 +195,7 @@ int main (int argc, char *argv[]) {
     vector<float> C (l*l, 0);
     TIMERSTOP(init)
 
-    /**
+    
     for(int i=0; i<l; i++){
        for(int j=0; j<l; j++){
             A[i*l+j] = rand()%5+1;
@@ -205,6 +208,7 @@ int main (int argc, char *argv[]) {
        }
     }
 
+    /**
     cout << "A: " << endl;
     for(int i=0; i<l; i++){
        for(int j=0; j<l; j++){
@@ -223,10 +227,14 @@ int main (int argc, char *argv[]) {
     }
     **/
 
-    TIMERSTART(strassenRecursive)
-    
-    C = strassenRecursive(A,B,l);
+    omp_set_num_threads(12);
 
+    TIMERSTART(strassenRecursive)
+    #pragma omp parallel
+    {
+        #pragma omp single
+         C = strassenRecursive(A,B,l);
+    }
     TIMERSTOP(strassenRecursive)
 
     /**
@@ -239,5 +247,4 @@ int main (int argc, char *argv[]) {
        cout << endl;
     }
     **/
-
 }

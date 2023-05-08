@@ -29,7 +29,7 @@ vector<float> strassenRecursive(vector<float>& A, vector<float>& B, uint64_t l){
     // Si el largo de la matriz es mayor a 2, se debe dividir y conquistar.
     // Como las matrices a evaluar son cuadradas, largo = ancho.
 
-    if (l <= 2) {
+    if (l <= 4) {
         //vector<float> aux(1, A[0] * B[0]);
         //return aux;
         return mult(A, B, l);
@@ -183,7 +183,7 @@ int main (int argc, char *argv[]) {
     */
 
     // DEBUG
-    int dimension = 4;
+    int dimension = 1000;
     const uint64_t l = 1 << dimension;
 
     TIMERSTART(init)
@@ -192,7 +192,7 @@ int main (int argc, char *argv[]) {
     vector<float> C (l*l, 0);
     TIMERSTOP(init)
 
-    /**
+   
     for(int i=0; i<l; i++){
        for(int j=0; j<l; j++){
             A[i*l+j] = rand()%5+1;
@@ -205,6 +205,7 @@ int main (int argc, char *argv[]) {
        }
     }
 
+    /**
     cout << "A: " << endl;
     for(int i=0; i<l; i++){
        for(int j=0; j<l; j++){
@@ -223,6 +224,7 @@ int main (int argc, char *argv[]) {
     }
     **/
 
+
     TIMERSTART(strassenRecursive)
     
     C = strassenRecursive(A,B,l);
@@ -239,5 +241,4 @@ int main (int argc, char *argv[]) {
        cout << endl;
     }
     **/
-
 }
