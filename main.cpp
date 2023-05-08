@@ -88,7 +88,7 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l, int 
 
                 // Matriz inferior izquierda
                 a3[i*(l/2)+j] = A[(l/2*l)+(i*l)+j];
-                b3[i*(l/2)+j] = A[(l/2*l)+(i*l)+j];
+                b3[i*(l/2)+j] = B[(l/2*l)+(i*l)+j];
 
                 // Matriz inferior derecha
                 a4[i*(l/2)+j] = A[(l/2*l)+(l/2)+(i*l)+j];
