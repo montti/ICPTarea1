@@ -76,7 +76,6 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l, int 
 
                 // Testeado en cuaderno con una matriz de 4x4.
                 // Y en una de 8x8.
-                // Ojalá funcione.
                 
                 // Matriz superior izquierda
                 a1[i*(l/2)+j] = A[i*l+j];
@@ -94,20 +93,14 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l, int 
                 a4[i*(l/2)+j] = A[(l/2*l)+(l/2)+(i*l)+j];
                 b4[i*(l/2)+j] = B[(l/2*l)+(l/2)+(i*l)+j];
 
-                // It just works
-
             }
         }
 
         // Ahora que se han creado las submatrices, hay que aplicarle dividir y conquistar a cada una.
 
-        /*
-        c1 = divideConquer(a1,b1,l/2,opcion);
-        c2 = divideConquer(a2,b2,l/2,opcion);
-        c3 = divideConquer(a3,b3,l/2,opcion);
-        c4 = divideConquer(a4,b4,l/2,opcion);
-        */
-
+        // En realidad, se "replica" la multiplicación, tomando las matrices de nxn como si fueran
+        // los elementos a multiplicar.
+        
         vector<float> c1_1(tam_sub,0), c1_2(tam_sub,0), c2_1(tam_sub,0), c2_2(tam_sub,0);
         vector<float> c3_1(tam_sub,0), c3_2(tam_sub,0), c4_1(tam_sub,0), c4_2(tam_sub,0);
 
@@ -118,7 +111,7 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l, int 
         c3_1 = divideConquer(a3,b1,l/2,opcion);
         c3_2 = divideConquer(a4,b3,l/2,opcion);
         c4_1 = divideConquer(a3,b2,l/2,opcion);
-        c4_2 = divideConquer(a3,b3,l/2,opcion);
+        c4_2 = divideConquer(a4,b4,l/2,opcion);
 
         for(int i = 0; i < l/2; i++){
             for(int j = 0; j < l/2; j++){
