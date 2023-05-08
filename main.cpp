@@ -10,13 +10,13 @@ using namespace std;
 // Se llegará a un punto final, donde se tendrá una matriz de 2x2
 vector<float> matrixMult(vector<float> A, vector<float> B, uint64_t l){
 
-    vector<float> resultado(l,0);
+    vector<float> resultado(l*l,0);
 
     //Multiplicaciones de cada celda.
-    float res1 = A[0]*B[0] + A[1] * B[2];
-    float res2 = A[0]*B[1] + A[1] * B[3];
-    float res3 = A[2]*B[0] + A[3] * B[2];
-    float res4 = A[3]*B[1] + A[3] * B[3];
+    float res1 = A[0] * B[0] + A[1] * B[2];
+    float res2 = A[0] * B[1] + A[1] * B[3];
+    float res3 = A[2] * B[0] + A[3] * B[2];
+    float res4 = A[2] * B[1] + A[3] * B[3];
 
     //Agregar a una (sub)matriz de resultados
     resultado[0] = res1;
@@ -30,7 +30,7 @@ vector<float> matrixMult(vector<float> A, vector<float> B, uint64_t l){
 
 vector<float> strassen(vector<float> A, vector<float> B, uint64_t l){
 
-    vector<float> resultado(l,0);
+    vector<float> resultado(l*l,0);
     
     // Escrito al pie de la letra como está en el PDF.
     float m1 = (A[0] + A[3]) * (B[0] + B[3]);
@@ -44,12 +44,12 @@ vector<float> strassen(vector<float> A, vector<float> B, uint64_t l){
     resultado[0] = m1 + m4 - m5 + m7;
     resultado[1] = m3 + m5;
     resultado[2] = m2 + m4;
-    resultado[3] = m1 - m2 + m3 +m6;
+    resultado[3] = m1 - m2 + m3 + m6;
 
     return resultado;
 }
 
-void divideConquer(vector<float>& A, vector<float>& B, vector<float>& C, uint64_t l, int opcion){
+vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l, int opcion){
 
     // Si el largo de la matriz es mayor a 2, se debe dividir y conquistar.
     // Como las matrices a evaluar son cuadradas, largo = ancho.
@@ -101,15 +101,38 @@ void divideConquer(vector<float>& A, vector<float>& B, vector<float>& C, uint64_
 
         // Ahora que se han creado las submatrices, hay que aplicarle dividir y conquistar a cada una.
 
-        divideConquer(a1,b1,c1,l/2,opcion);
-        divideConquer(a2,b2,c2,l/2,opcion);
-        divideConquer(a3,b3,c3,l/2,opcion);
-        divideConquer(a4,b4,c4,l/2,opcion);
+        /*
+        c1 = divideConquer(a1,b1,l/2,opcion);
+        c2 = divideConquer(a2,b2,l/2,opcion);
+        c3 = divideConquer(a3,b3,l/2,opcion);
+        c4 = divideConquer(a4,b4,l/2,opcion);
+        */
+
+        vector<float> c1_1(tam_sub,0), c1_2(tam_sub,0), c2_1(tam_sub,0), c2_2(tam_sub,0);
+        vector<float> c3_1(tam_sub,0), c3_2(tam_sub,0), c4_1(tam_sub,0), c4_2(tam_sub,0);
+
+        c1_1 = divideConquer(a1,b1,l/2,opcion);
+        c1_2 = divideConquer(a2,b3,l/2,opcion);
+        c2_1 = divideConquer(a1,b2,l/2,opcion);
+        c2_2 = divideConquer(a2,b4,l/2,opcion);
+        c3_1 = divideConquer(a3,b1,l/2,opcion);
+        c3_2 = divideConquer(a4,b3,l/2,opcion);
+        c4_1 = divideConquer(a3,b2,l/2,opcion);
+        c4_2 = divideConquer(a3,b3,l/2,opcion);
+
+        for(int i = 0; i < l/2; i++){
+            for(int j = 0; j < l/2; j++){
+                c1[i*(l/2)+j] = c1_1[i*(l/2)+j] + c1_2[i*(l/2)+j];
+                c2[i*(l/2)+j] = c2_1[i*(l/2)+j] + c2_2[i*(l/2)+j];
+                c3[i*(l/2)+j] = c3_1[i*(l/2)+j] + c3_2[i*(l/2)+j];
+                c4[i*(l/2)+j] = c4_1[i*(l/2)+j] + c4_2[i*(l/2)+j];
+            }
+        }
 
         // Si las submatrices son de 2x2 acá ya deberían haberse procesado.
         // Por lo que se agregan a la matriz de resultados C.
 
-        // PUEDE QUE ESTO ESTÉ MALO.
+        vector<float> C(l*l,0);
 
         for(uint64_t i = 0; i < l/2; i++){
             for(uint64_t j = 0; j < l/2; j++){
@@ -128,6 +151,9 @@ void divideConquer(vector<float>& A, vector<float>& B, vector<float>& C, uint64_
 
             }
         }
+
+        return C;
+
     }
 
     // Si A y B son matrices de 2x2, se hace la multiplicación
@@ -147,7 +173,7 @@ void divideConquer(vector<float>& A, vector<float>& B, vector<float>& C, uint64_
         }
 
         // Acá se asignan los valores del resultado a la matriz C.
-        C = res;
+        return res;
 
         // Acá no tengo acceso a la "matriz superior"
         // (La que, por ejemplo, sería de 4x4 si mi matriz a trabajar acá es de 2x2)
@@ -160,6 +186,7 @@ void divideConquer(vector<float>& A, vector<float>& B, vector<float>& C, uint64_
 
 int main (int argc, char *argv[]) {
 
+    /*
     if(argc != 3){
         cout<<" uso: " << argv[0] <<" dimension opcion" << endl;
         cout<<" opcion 0 (normal) o 1 (strassen)" << endl;
@@ -175,6 +202,12 @@ int main (int argc, char *argv[]) {
         cout <<" Por favor usar 0 (normal) o 1 (strassen)" << endl;
         return 1;
     }
+    */
+
+    // DEBUG
+    int dimension = 3;
+    const uint64_t l = 1 << dimension;
+    int opcion = 0;
 
     TIMERSTART(init)
     vector<float> A (l*l, 0);
@@ -184,20 +217,46 @@ int main (int argc, char *argv[]) {
 
     for(int i=0; i<l; i++){
        for(int j=0; j<l; j++){
-            A[i*l+j] = rand()%5;
+            A[i*l+j] = rand()%5+1;
        }
     }
 
     for(int i=0; i<l; i++){
        for(int j=0; j<l; j++){
-            B[i*l+j] = rand()%6;
+            B[i*l+j] = rand()%6+1;
        }
+    }
+
+    cout << "A: " << endl;
+    for(int i=0; i<l; i++){
+       for(int j=0; j<l; j++){
+        cout << A[i*l+j] << " ";
+       }
+       cout << endl;
+    }
+
+    cout << "B: " << endl;
+
+    for(int i=0; i<l; i++){
+       for(int j=0; j<l; j++){
+        cout << B[i*l+j] << " ";
+       }
+       cout << endl;
     }
 
     TIMERSTART(divideconquer)
 
-    divideConquer(A,B,C,l,opcion);
+    C = divideConquer(A,B,l,opcion);
 
-    TIMERSTOP(divideconquer) 
+    TIMERSTOP(divideconquer)
+
+    cout << "C: " << endl;
+
+    for(int i=0; i<l; i++){
+       for(int j=0; j<l; j++){
+        cout << C[i*l+j] << " ";
+       }
+       cout << endl;
+    }
 
 }
