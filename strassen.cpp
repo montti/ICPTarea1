@@ -181,9 +181,6 @@ int main (int argc, char *argv[]) {
     int dimension = atoi(argv[1]);
     const uint64_t l = 1 << dimension;
 
-    int dimension = atoi(argv[1]);
-    const uint64_t l = 1 << dimension;
-
     /*
     // DEBUG
     int dimension = 7;
