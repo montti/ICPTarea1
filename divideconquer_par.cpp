@@ -77,6 +77,7 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l){
 
             }
         }
+        
 
         // Ahora que se han creado las submatrices, hay que aplicarle dividir y conquistar a cada una.
 
@@ -86,14 +87,31 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l){
         vector<float> c1_1(tam_sub,0), c1_2(tam_sub,0), c2_1(tam_sub,0), c2_2(tam_sub,0);
         vector<float> c3_1(tam_sub,0), c3_2(tam_sub,0), c4_1(tam_sub,0), c4_2(tam_sub,0);
 
-        c1_1 = divideConquer(a1,b1,l/2);
-        c1_2 = divideConquer(a2,b3,l/2);
-        c2_1 = divideConquer(a1,b2,l/2);
-        c2_2 = divideConquer(a2,b4,l/2);
-        c3_1 = divideConquer(a3,b1,l/2);
-        c3_2 = divideConquer(a4,b3,l/2);
-        c4_1 = divideConquer(a3,b2,l/2);
-        c4_2 = divideConquer(a4,b4,l/2);
+        #pragma omp task shared(c1_1)
+        {c1_1 = divideConquer(a1,b1,l/2);}
+
+        #pragma omp task shared(c1_2)
+        {c1_2 = divideConquer(a2,b3,l/2);}
+
+        #pragma omp task shared(c2_1)
+        {c2_1 = divideConquer(a1,b2,l/2);}
+
+        #pragma omp task shared(c2_2)
+        {c2_2 = divideConquer(a2,b4,l/2);}
+
+        #pragma omp task shared(c3_1)
+        {c3_1 = divideConquer(a3,b1,l/2);}
+
+        #pragma omp task shared(c3_2)
+        {c3_2 = divideConquer(a4,b3,l/2);}
+
+        #pragma omp task shared(c4_1)
+        {c4_1 = divideConquer(a3,b2,l/2);}
+
+        #pragma omp task shared(c4_2)
+        {c4_2 = divideConquer(a4,b4,l/2);}
+
+        #pragma omp taskwait
 
         /*
         #pragma omp parallel for collapse(2)
@@ -106,6 +124,7 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l){
             }
         }
         */
+
        #pragma omp parallel for
         for(i = 0; i < tam_sub; i++){
             c1[i] = c1_1[i] + c1_2[i];
@@ -137,21 +156,14 @@ vector<float> divideConquer(vector<float>& A, vector<float>& B, uint64_t l){
 
             }
         }
-
         return C;
-
     }
 
     // Si A y B son matrices de 2x2, se hace la multiplicación
     else{
 
-        // Resultado de multiplicación
-        vector<float> res;
-
-        res = matrixMult(A,B,l);
-
         // Acá se asignan los valores del resultado a la matriz C.
-        return res;
+        return matrixMult(A,B,l);
 
         // Acá no tengo acceso a la "matriz superior"
         // (La que, por ejemplo, sería de 4x4 si mi matriz a trabajar acá es de 2x2)
@@ -166,7 +178,7 @@ int main (int argc, char *argv[]) {
 
     if(argc != 2){
         cout<<" uso: " << argv[0] <<" dimension" << endl;
-        cout<<" Las dimensiones son de 2^x " << endl;
+        cout<<" Las dimensiones son de 2^x, x siendo el numero insertado en la terminal. " << endl;
         return 1;
     }
 
@@ -216,11 +228,13 @@ int main (int argc, char *argv[]) {
     }
     */
 
+    omp_set_num_threads(12);
+
     TIMERSTART(divideconquerrecursive)
 
     #pragma omp parallel
     {
-        #pragma omp simple
+        #pragma omp single
         C = divideConquer(A,B,l);
     }
     TIMERSTOP(divideconquerrecursive)
