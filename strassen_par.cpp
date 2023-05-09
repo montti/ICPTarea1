@@ -176,7 +176,8 @@ vector<float> strassenRecursive(vector<float>& A, vector<float>& B, uint64_t l){
 int main (int argc, char *argv[]) {
 
     if(argc != 2){
-        cout<<" uso: " << argv[0] <<" dimension " << endl;
+        cout<<" uso: " << argv[0] <<" dimension" << endl;
+        cout<<" Las dimensiones son de 2^x, x siendo el numero insertado en la terminal. " << endl;
         return 1;
     }
 

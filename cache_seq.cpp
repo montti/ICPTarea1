@@ -1,46 +1,36 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
-#include <omp.h>
 #include "./metrictime2.hpp"
 
 using namespace std;
 
 int main (int argc, char *argv[]) {
 
-    if(argc != 4){
-	    cout<<" uso: "<<argv[0]<<" em en el\n";
-	    return 1;
-    } 
-    int em = atoi(argv[1]); 
-    int en = atoi(argv[2]); 
-    int el = atoi(argv[3]); 
-    cout<<" em "<<em<<" en "<<en<<" el "<<el<<endl;
-    const uint64_t m = 1 << em;
-    const uint64_t n = 1 << en;
-    const uint64_t l = 1 << el;
+    if(argc != 2){
+        cout<<" uso: " << argv[0] <<" dimension" << endl;
+        cout<<" Las dimensiones son de 2^x, x siendo el numero insertado en la terminal. " << endl;
+        return 1;
+    }
 
-    /*
-    const uint64_t m = 1 << 10;
-    const uint64_t n = 1 << 10;
-    const uint64_t l = 1 << 10;
-    */
+    int dimension = atoi(argv[1]);
+    const uint64_t l = 1 << dimension;
 
     TIMERSTART(init)
-    vector<float> A (m*l, 0); // m x l
-    vector<float> B (l*n, 0); // l x n
-    vector<float> C (m*n, 0); // m x n
+    vector<float> A (l*l, 0); // m x l
+    vector<float> B (l*l, 0); // l x n
+    vector<float> C (l*l, 0); // m x n
     TIMERSTOP(init)
 
 
-    for(int i=0; i<m; i++){
+    for(int i=0; i<l; i++){
        for(int j=0; j<l; j++){
             A[i*l+j] = rand()%5;
        }
     }
 
     for(int i=0; i<l; i++){
-       for(int j=0; j<n; j++){
+       for(int j=0; j<l; j++){
             B[i*l+j] = rand()%6;
        }
     }
@@ -70,11 +60,10 @@ int main (int argc, char *argv[]) {
     float accum = 0;
 
     TIMERSTART(cachefriendly)
-    #pragma omp parallel for collapse(3)
-    for (i = 0; i < m; i++){
+    for (i = 0; i < l; i++){
         for (k = 0; k < l; k++) {
-            for (j = 0; j < n; j++) {
-                C[i * n+j] += A[i * l+k] * B[k * n+j];
+            for (j = 0; j < l; j++) {
+                C[i * l+j] += A[i * l+k] * B[k * l+j];
             }
         }
     }
